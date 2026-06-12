@@ -1,21 +1,27 @@
 const loginScreen = document.getElementById("loginScreen");
 const adminApp = document.getElementById("adminApp");
 
-let settings = JSON.parse(JSON.stringify(APP_CONFIG));
 let editablePlaces = JSON.parse(JSON.stringify(PLACES));
+let settings = JSON.parse(JSON.stringify(APP_CONFIG));
 let selectedId = null;
 
-if (sessionStorage.getItem("hyttevoldAdmin") === "1") {
-  showAdmin();
+function showAdmin() {
+  loginScreen.classList.add("hidden");
+  adminApp.classList.remove("hidden");
+
+  if (!window.adminStarted) {
+    window.adminStarted = true;
+    setupAdmin();
+  }
 }
 
-document.getElementById("loginForm").addEventListener("submit", e => {
+document.getElementById("loginForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
-  const u = document.getElementById("username").value.trim();
-  const p = document.getElementById("password").value.trim();
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value.trim();
 
-  if (u === APP_CONFIG.adminUser && p === APP_CONFIG.adminPassword) {
+  if (username === "admin" && password === "Hyttevold2026") {
     sessionStorage.setItem("hyttevoldAdmin", "1");
     showAdmin();
   } else {
@@ -24,15 +30,8 @@ document.getElementById("loginForm").addEventListener("submit", e => {
   }
 });
 
-document.getElementById("logoutButton").onclick = () => {
-  sessionStorage.removeItem("hyttevoldAdmin");
-  location.reload();
-};
-
-function showAdmin() {
-  loginScreen.classList.add("hidden");
-  adminApp.classList.remove("hidden");
-  setupAdmin();
+if (sessionStorage.getItem("hyttevoldAdmin") === "1") {
+  showAdmin();
 }
 
 function setupAdmin() {
