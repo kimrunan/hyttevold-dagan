@@ -22,7 +22,7 @@ Deploy:
 - Who has access: Anyone
 */
 
-const SHEET_ID = "LIM_INN_GOOGLE_SHEET_ID_HER";
+const SHEET_ID = "19kr53Lc359X5gx0omw2DT9SaC4RRj3D56UaDGpRrfc8";
 
 const BOOKING_SHEET = "Bookings";
 const PLACES_SHEET = "Places";
@@ -35,20 +35,20 @@ function doGet(e) {
     return json({
       ok: true,
       settings: getSettings(),
-      places: getPlaces()
+      places: getPlaces(),
     });
   }
 
   if (action === "bookings") {
     return json({
       ok: true,
-      bookings: getBookings()
+      bookings: getBookings(),
     });
   }
 
   return json({
     ok: false,
-    message: "Ukjent action."
+    message: "Ukjent action.",
   });
 }
 
@@ -65,7 +65,7 @@ function doPost(e) {
 
   return json({
     ok: false,
-    message: "Ukjent action."
+    message: "Ukjent action.",
   });
 }
 
@@ -80,19 +80,21 @@ function bookPlace(e) {
     if (!placeId || !name) {
       return json({
         ok: false,
-        message: "Mangler plass eller navn."
+        message: "Mangler plass eller navn.",
       });
     }
 
     const sheet = getSheet(BOOKING_SHEET, ["Timestamp", "Plass", "Navn"]);
     const rows = sheet.getDataRange().getValues().slice(1);
 
-    const conflict = rows.some(row => String(row[1] || "").trim() === placeId);
+    const conflict = rows.some(
+      (row) => String(row[1] || "").trim() === placeId,
+    );
 
     if (conflict) {
       return json({
         ok: false,
-        message: "Denne plassen ble nettopp booket av noen andre."
+        message: "Denne plassen ble nettopp booket av noen andre.",
       });
     }
 
@@ -100,12 +102,12 @@ function bookPlace(e) {
 
     return json({
       ok: true,
-      message: "Booking registrert."
+      message: "Booking registrert.",
     });
   } catch (error) {
     return json({
       ok: false,
-      message: error.message
+      message: error.message,
     });
   } finally {
     lock.releaseLock();
@@ -125,12 +127,12 @@ function saveConfig(e) {
 
     return json({
       ok: true,
-      message: "Lagret."
+      message: "Lagret.",
     });
   } catch (error) {
     return json({
       ok: false,
-      message: error.message
+      message: error.message,
     });
   } finally {
     lock.releaseLock();
@@ -142,11 +144,11 @@ function getBookings() {
   const rows = sheet.getDataRange().getValues().slice(1);
 
   return rows
-    .filter(row => row[1] && row[2])
-    .map(row => ({
+    .filter((row) => row[1] && row[2])
+    .map((row) => ({
       timestamp: row[0],
       placeId: String(row[1]),
-      name: String(row[2])
+      name: String(row[2]),
     }));
 }
 
@@ -155,12 +157,12 @@ function getPlaces() {
   const rows = sheet.getDataRange().getValues().slice(1);
 
   return rows
-    .filter(row => row[0])
-    .map(row => ({
+    .filter((row) => row[0])
+    .map((row) => ({
       id: String(row[0]),
       type: String(row[1] || "bobil"),
       x: Number(row[2] || 50),
-      y: Number(row[3] || 50)
+      y: Number(row[3] || 50),
     }));
 }
 
@@ -170,13 +172,8 @@ function savePlaces(places) {
   sheet.clearContents();
   sheet.appendRow(["ID", "Type", "X", "Y"]);
 
-  places.forEach(place => {
-    sheet.appendRow([
-      place.id,
-      place.type,
-      Number(place.x),
-      Number(place.y)
-    ]);
+  places.forEach((place) => {
+    sheet.appendRow([place.id, place.type, Number(place.x), Number(place.y)]);
   });
 }
 
@@ -187,10 +184,10 @@ function getSettings() {
   const settings = {
     bookingEnabled: true,
     bookingOpenText: "Booking er åpen.",
-    bookingClosedText: "Booking er stengt."
+    bookingClosedText: "Booking er stengt.",
   };
 
-  rows.forEach(row => {
+  rows.forEach((row) => {
     const key = String(row[0] || "");
     const value = row[1];
 
@@ -217,7 +214,10 @@ function saveSettings(settings) {
   sheet.appendRow(["Key", "Value"]);
   sheet.appendRow(["bookingEnabled", String(!!settings.bookingEnabled)]);
   sheet.appendRow(["bookingOpenText", String(settings.bookingOpenText || "")]);
-  sheet.appendRow(["bookingClosedText", String(settings.bookingClosedText || "")]);
+  sheet.appendRow([
+    "bookingClosedText",
+    String(settings.bookingClosedText || ""),
+  ]);
 }
 
 function getSheet(name, headers) {
@@ -236,7 +236,7 @@ function getSheet(name, headers) {
 }
 
 function json(obj) {
-  return ContentService
-    .createTextOutput(JSON.stringify(obj))
-    .setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(
+    ContentService.MimeType.JSON,
+  );
 }
