@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Admin</title>
+  <title>Admin - Hyttevold-dagan Booking</title>
 
   <link rel="icon" href="images/logo.png">
   <link rel="stylesheet" href="style.css">
@@ -12,114 +12,86 @@
 </head>
 
 <body>
-  <section id="loginScreen" class="login-screen">
-    <form id="loginForm" class="login-card">
-      <img src="images/logo.png" alt="Logo">
+  <header class="topbar">
+    <img src="images/logo.png" alt="Logo" class="logo">
 
-      <h1>Admin</h1>
+    <div>
+      <h1>Adminpanel</h1>
+      <p>Styr booking og plasseringer.</p>
+    </div>
 
-      <label>
-        Brukernavn
-        <input id="username" value="admin" required>
-      </label>
+    <a href="index.html" class="admin-link">Til booking</a>
+  </header>
 
-      <label>
-        Passord
-        <input id="password" type="password" required>
-      </label>
-
-      <button class="primary" type="submit">Logg inn</button>
-
-      <p id="loginMessage"></p>
-    </form>
-  </section>
-
-  <section id="adminApp" class="hidden">
-    <header class="topbar">
-      <img src="images/logo.png" alt="Logo" class="logo">
-
-      <div>
-        <h1>Adminpanel</h1>
-        <p>Styr booking og plasseringer.</p>
+  <main class="admin-layout">
+    <section class="map-card">
+      <div id="adminMap" class="map">
+        <img src="images/plasskart.png" alt="Plasskart">
+        <div id="adminLayer"></div>
       </div>
+    </section>
 
-      <a href="index.html" class="admin-link">Til booking</a>
+    <aside class="admin-panel">
+      <h2>Booking</h2>
 
-      <button id="logoutButton" class="secondary" type="button">
-        Logg ut
+      <label class="check">
+        <input type="checkbox" id="bookingEnabled">
+        Booking åpen
+      </label>
+
+      <label>
+        Tekst når åpen
+        <input id="openText">
+      </label>
+
+      <label>
+        Tekst når stengt
+        <input id="closedText">
+      </label>
+
+      <h2>Ny plass</h2>
+
+      <form id="addPlaceForm">
+        <label>
+          Plass-ID
+          <input id="newId" placeholder="13 eller A5" required>
+        </label>
+
+        <label>
+          Type
+          <select id="newType">
+            <option value="bobil">Bobil</option>
+            <option value="campingvogn">Campingvogn</option>
+            <option value="telt">Telt</option>
+            <option value="bat">Båt</option>
+          </select>
+        </label>
+
+        <button class="primary" type="submit">Legg til</button>
+      </form>
+
+      <h2>Valgt plass</h2>
+
+      <div id="selectedInfo">Ingen valgt.</div>
+
+      <button id="deletePlace" class="secondary" type="button">
+        Slett valgt plass
       </button>
-    </header>
 
-    <main class="admin-layout">
-      <section class="map-card">
-        <div id="adminMap" class="map">
-          <img src="images/plasskart.png" alt="Plasskart">
-          <div id="adminLayer"></div>
-        </div>
-      </section>
+      <h2>Kopier oppdatert kode</h2>
 
-      <aside class="admin-panel">
-        <h2>Booking</h2>
+      <p>
+        Kopier dette inn i <strong>places.js</strong> og
+        <strong>config.js</strong>.
+      </p>
 
-        <label class="check">
-          <input type="checkbox" id="bookingEnabled">
-          Booking åpen
-        </label>
+      <textarea id="output" readonly></textarea>
 
-        <label>
-          Tekst når åpen
-          <input id="openText">
-        </label>
-
-        <label>
-          Tekst når stengt
-          <input id="closedText">
-        </label>
-
-        <h2>Ny plass</h2>
-
-        <form id="addPlaceForm">
-          <label>
-            Plass-ID
-            <input id="newId" placeholder="13 eller A5" required>
-          </label>
-
-          <label>
-            Type
-            <select id="newType">
-              <option value="bobil">Bobil</option>
-              <option value="campingvogn">Campingvogn</option>
-              <option value="telt">Telt</option>
-              <option value="bat">Båt</option>
-            </select>
-          </label>
-
-          <button class="primary" type="submit">Legg til</button>
-        </form>
-
-        <h2>Valgt plass</h2>
-
-        <div id="selectedInfo">Ingen valgt.</div>
-
-        <button id="deletePlace" class="secondary" type="button">
-          Slett valgt plass
-        </button>
-
-        <h2>Kopier oppdatert kode</h2>
-
-        <p>
-          Kopier dette inn i <strong>places.js</strong> og
-          <strong>config.js</strong>.
-        </p>
-
-        <textarea id="output" readonly></textarea>
-
-        <button id="copyButton" class="primary" type="button">
-          Kopier kode
-        </button>
-      </aside>
-    </main>
-  </section>
+      <button id="copyButton" class="primary" type="button">
+        Kopier kode
+      </button>
+    </aside>
+  </main>
 
   <script src="config.js"></script>
   <script src="places.js"></script>

@@ -4,9 +4,25 @@ const PLACE_TYPES = {
   telt: { label: "Telt", iconFile: "icons/telt.svg", fallback: "T" },
   bat: { label: "Båt", iconFile: "icons/bat.svg", fallback: "A" }
 };
+
 const PLACES = [
-  { id: "1", type: "bobil", x: 59, y: 35 },{ id: "2", type: "bobil", x: 64, y: 39 },{ id: "3", type: "bobil", x: 69, y: 44 },{ id: "4", type: "bobil", x: 74, y: 49 },
-  { id: "5", type: "campingvogn", x: 56, y: 49 },{ id: "6", type: "campingvogn", x: 62, y: 54 },{ id: "7", type: "campingvogn", x: 68, y: 59 },{ id: "8", type: "campingvogn", x: 74, y: 64 },
-  { id: "9", type: "telt", x: 49, y: 63 },{ id: "10", type: "telt", x: 55, y: 68 },{ id: "11", type: "telt", x: 61, y: 73 },{ id: "12", type: "telt", x: 67, y: 78 },
-  { id: "A1", type: "bat", x: 19, y: 69 },{ id: "A2", type: "bat", x: 23, y: 72 },{ id: "A3", type: "bat", x: 27, y: 75 },{ id: "A4", type: "bat", x: 31, y: 78 }
+  { id: "1", type: "bobil", x: 59, y: 35 },
+  { id: "2", type: "bobil", x: 64, y: 39 },
+  { id: "3", type: "bobil", x: 69, y: 44 },
+  { id: "4", type: "bobil", x: 74, y: 49 },
+
+  { id: "5", type: "campingvogn", x: 56, y: 49 },
+  { id: "6", type: "campingvogn", x: 62, y: 54 },
+  { id: "7", type: "campingvogn", x: 68, y: 59 },
+  { id: "8", type: "campingvogn", x: 74, y: 64 },
+
+  { id: "9", type: "telt", x: 49, y: 63 },
+  { id: "10", type: "telt", x: 55, y: 68 },
+  { id: "11", type: "telt", x: 61, y: 73 },
+  { id: "12", type: "telt", x: 67, y: 78 },
+
+  { id: "A1", type: "bat", x: 19, y: 69 },
+  { id: "A2", type: "bat", x: 23, y: 72 },
+  { id: "A3", type: "bat", x: 27, y: 75 },
+  { id: "A4", type: "bat", x: 31, y: 78 }
 ];

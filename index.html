@@ -1,1 +1,79 @@
-<!DOCTYPE html><html lang="no"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Hyttevold-dagene Booking</title><link rel="stylesheet" href="style.css"></head><body><header class="topbar"><img src="images/logo.png" alt="Hyttevold-dagene" class="logo"><div><h1>Plassbooking</h1><p id="bookingStatusText">Velg en ledig plass på kartet.</p></div><a href="admin.html" class="admin-link">Admin</a></header><main class="layout"><section class="map-card"><div class="legend"><span><i class="dot ledig"></i> Ledig</span><span><i class="dot opptatt"></i> Opptatt</span><span>Bobil</span><span>Campingvogn</span><span>Telt</span><span>Båt</span></div><div id="map" class="map"><img src="images/plasskart.png" alt="Plasskart"><div id="spotsLayer"></div></div></section><aside class="side"><section id="placeCard" class="card"><h2>Velg plass</h2><p>Klikk på en plass i kartet.</p></section><section class="card"><h2>Bookede plasser</h2><ul id="bookingList" class="booking-list"></ul></section></aside></main><dialog id="bookingDialog"><form id="bookingForm"><h2 id="dialogTitle">Book plass</h2><input type="hidden" id="placeId" name="placeId"><label>Navn<input type="text" id="name" name="name" required autocomplete="name"></label><p id="formMessage"></p><div class="dialog-actions"><button type="button" id="cancelButton" class="secondary">Avbryt</button><button type="submit" class="primary">Book plass</button></div></form></dialog><div id="toast" class="toast hidden"></div><script src="config.js"></script><script src="places.js"></script><script src="script.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Hyttevold-dagan Booking</title>
+
+  <link rel="icon" href="images/logo.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <header class="topbar">
+    <img src="images/logo.png" alt="Hyttevold-dagan" class="logo">
+
+    <div>
+      <h1>Plassbooking</h1>
+      <p id="bookingStatusText">Velg en ledig plass på kartet.</p>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="map-card">
+      <div class="legend">
+        <span><i class="dot ledig"></i> Ledig</span>
+        <span><i class="dot opptatt"></i> Opptatt</span>
+        <span>Bobil</span>
+        <span>Campingvogn</span>
+        <span>Telt</span>
+        <span>Båt</span>
+      </div>
+
+      <div id="map" class="map">
+        <img src="images/plasskart.png" alt="Plasskart">
+        <div id="spotsLayer"></div>
+      </div>
+    </section>
+
+    <aside class="side">
+      <section id="placeCard" class="card">
+        <h2>Velg plass</h2>
+        <p>Klikk på en plass i kartet.</p>
+      </section>
+
+      <section class="card">
+        <h2>Bookede plasser</h2>
+        <ul id="bookingList" class="booking-list"></ul>
+      </section>
+    </aside>
+  </main>
+
+  <dialog id="bookingDialog">
+    <form id="bookingForm">
+      <h2 id="dialogTitle">Book plass</h2>
+
+      <input type="hidden" id="placeId" name="placeId">
+
+      <label>
+        Navn
+        <input type="text" id="name" name="name" required autocomplete="name">
+      </label>
+
+      <p id="formMessage"></p>
+
+      <div class="dialog-actions">
+        <button type="button" id="cancelButton" class="secondary">Avbryt</button>
+        <button type="submit" class="primary">Book plass</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="config.js"></script>
+  <script src="places.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,1 +1,266 @@
-const state={bookings:[],selected:null};const spotsLayer=document.getElementById("spotsLayer"),placeCard=document.getElementById("placeCard"),bookingList=document.getElementById("bookingList"),dialog=document.getElementById("bookingDialog"),form=document.getElementById("bookingForm"),formMessage=document.getElementById("formMessage"),toast=document.getElementById("toast");init();function init(){document.getElementById("bookingStatusText").textContent=APP_CONFIG.bookingEnabled?APP_CONFIG.bookingOpenText:APP_CONFIG.bookingClosedText;renderSpots();loadBookings();setInterval(loadBookings,APP_CONFIG.refreshIntervalMs||10000);document.getElementById("cancelButton").onclick=()=>dialog.close();form.addEventListener("submit",submitBooking)}function renderSpots(){spotsLayer.innerHTML="";PLACES.forEach(p=>{const t=PLACE_TYPES[p.type],b=document.createElement("button");b.type="button";b.className="spot ledig"+(APP_CONFIG.bookingEnabled?"":" closed");b.dataset.placeId=p.id;b.style.setProperty("--x",p.x+"%");b.style.setProperty("--y",p.y+"%");b.innerHTML=`<img class="spot-icon" src="${t.iconFile}" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'fallback-icon',textContent:'${t.fallback}'}))"><span>${p.id}</span>`;b.onclick=()=>selectPlace(p.id);spotsLayer.appendChild(b)})}async function loadBookings(){if(!APP_CONFIG.bookingsCsvUrl||APP_CONFIG.bookingsCsvUrl.includes("DIN_")){state.bookings=[{placeId:"2",name:"Ola Nordmann"},{placeId:"A1",name:"Kari Hansen"}];updateUi();return}try{const res=await fetch(APP_CONFIG.bookingsCsvUrl+"&cacheBust="+Date.now());state.bookings=parseCsv(await res.text());updateUi()}catch(e){showToast("Kunne ikke hente bookingdata")}}function parseCsv(csv){return csv.trim().split(/\r?\n/).slice(1).map(r=>{const c=splitCsv(r).map(v=>v.replace(/^"|"$/g,"").trim());return{timestamp:c[0]||"",placeId:c[1]||"",name:c[2]||""}}).filter(b=>b.placeId&&b.name)}function splitCsv(row){const out=[];let cur="",q=false;for(let i=0;i<row.length;i++){const ch=row[i],nx=row[i+1];if(ch=='"'&&nx=='"'){cur+='"';i++}else if(ch=='"')q=!q;else if(ch==","&&!q){out.push(cur);cur=""}else cur+=ch}out.push(cur);return out}function updateUi(){document.querySelectorAll(".spot").forEach(s=>{const booked=!!getBooking(s.dataset.placeId);s.classList.toggle("opptatt",booked);s.classList.toggle("ledig",!booked)});renderBookingList();if(state.selected)renderPlaceCard(state.selected)}function renderBookingList(){bookingList.innerHTML="";if(!state.bookings.length){bookingList.innerHTML="<li>Ingen bookinger enda.</li>";return}state.bookings.sort((a,b)=>String(a.placeId).localeCompare(String(b.placeId),"no",{numeric:true})).forEach(b=>{const li=document.createElement("li");li.innerHTML=`<strong>Plass ${escapeHtml(b.placeId)}</strong><br>${escapeHtml(b.name)}`;bookingList.appendChild(li)})}function selectPlace(id){state.selected=id;renderPlaceCard(id)}function renderPlaceCard(id){const p=PLACES.find(x=>String(x.id)==String(id)),t=PLACE_TYPES[p.type],booking=getBooking(id);if(!APP_CONFIG.bookingEnabled){placeCard.innerHTML=`<h2>Plass ${p.id}</h2><span class="status closed">Booking stengt</span><p>${APP_CONFIG.bookingClosedText}</p>`;return}if(booking){placeCard.innerHTML=`<h2>Plass ${p.id}</h2><span class="status opptatt">Opptatt</span><p><strong>Type:</strong> ${t.label}</p><p><strong>Booket av:</strong><br>${escapeHtml(booking.name)}</p>`}else{placeCard.innerHTML=`<h2>Plass ${p.id}</h2><span class="status ledig">Ledig</span><p><strong>Type:</strong> ${t.label}</p><button class="primary" id="bookBtn">Book denne plassen</button>`;document.getElementById("bookBtn").onclick=()=>openDialog(p)}}function openDialog(p){document.getElementById("dialogTitle").textContent="Book plass "+p.id;document.getElementById("placeId").value=p.id;document.getElementById("name").value="";formMessage.textContent="";dialog.showModal()}async function submitBooking(e){e.preventDefault();if(!APP_CONFIG.appsScriptUrl||APP_CONFIG.appsScriptUrl.includes("DIN_")){formMessage.textContent="Legg inn Apps Script URL i config.js før ekte booking.";return}const fd=new FormData();fd.append("placeId",document.getElementById("placeId").value);fd.append("name",document.getElementById("name").value.trim());formMessage.textContent="Sender...";try{const res=await fetch(APP_CONFIG.appsScriptUrl,{method:"POST",body:fd});const json=await res.json();if(!json.ok){formMessage.textContent=json.message||"Plassen er opptatt";await loadBookings();return}dialog.close();showToast("Booking registrert");await loadBookings()}catch(err){formMessage.textContent="Kunne ikke sende booking"}}function getBooking(id){return state.bookings.find(b=>String(b.placeId)==String(id))}function escapeHtml(v){return String(v||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}function showToast(msg){toast.textContent=msg;toast.classList.remove("hidden");setTimeout(()=>toast.classList.add("hidden"),3000)}
+const state = {
+  bookings: [],
+  selected: null
+};
+
+const spotsLayer = document.getElementById("spotsLayer");
+const placeCard = document.getElementById("placeCard");
+const bookingList = document.getElementById("bookingList");
+const dialog = document.getElementById("bookingDialog");
+const form = document.getElementById("bookingForm");
+const formMessage = document.getElementById("formMessage");
+const toast = document.getElementById("toast");
+
+init();
+
+function init() {
+  document.getElementById("bookingStatusText").textContent =
+    APP_CONFIG.bookingEnabled
+      ? APP_CONFIG.bookingOpenText
+      : APP_CONFIG.bookingClosedText;
+
+  renderSpots();
+  loadBookings();
+
+  setInterval(loadBookings, APP_CONFIG.refreshIntervalMs || 10000);
+
+  document.getElementById("cancelButton").onclick = () => dialog.close();
+  form.addEventListener("submit", submitBooking);
+}
+
+function renderSpots() {
+  spotsLayer.innerHTML = "";
+
+  PLACES.forEach(place => {
+    const type = PLACE_TYPES[place.type];
+    const button = document.createElement("button");
+
+    button.type = "button";
+    button.className = "spot ledig" + (APP_CONFIG.bookingEnabled ? "" : " closed");
+    button.dataset.placeId = place.id;
+    button.style.setProperty("--x", place.x + "%");
+    button.style.setProperty("--y", place.y + "%");
+
+    button.innerHTML = `
+      <img
+        class="spot-icon"
+        src="${type.iconFile}"
+        onerror="this.replaceWith(Object.assign(document.createElement('span'), { className: 'fallback-icon', textContent: '${type.fallback}' }))"
+      >
+      <span>${place.id}</span>
+    `;
+
+    button.onclick = () => selectPlace(place.id);
+    spotsLayer.appendChild(button);
+  });
+}
+
+async function loadBookings() {
+  if (!APP_CONFIG.bookingsCsvUrl || APP_CONFIG.bookingsCsvUrl.includes("DIN_")) {
+    state.bookings = [
+      { placeId: "2", name: "Ola Nordmann" },
+      { placeId: "A1", name: "Kari Hansen" }
+    ];
+
+    updateUi();
+    return;
+  }
+
+  try {
+    const response = await fetch(APP_CONFIG.bookingsCsvUrl + "&cacheBust=" + Date.now());
+    state.bookings = parseCsv(await response.text());
+    updateUi();
+  } catch (error) {
+    showToast("Kunne ikke hente bookingdata");
+  }
+}
+
+function parseCsv(csv) {
+  const rows = csv.trim().split(/\r?\n/).slice(1);
+
+  return rows
+    .map(row => {
+      const columns = splitCsv(row).map(value =>
+        value.replace(/^"|"$/g, "").trim()
+      );
+
+      return {
+        timestamp: columns[0] || "",
+        placeId: columns[1] || "",
+        name: columns[2] || ""
+      };
+    })
+    .filter(booking => booking.placeId && booking.name);
+}
+
+function splitCsv(row) {
+  const output = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < row.length; i++) {
+    const character = row[i];
+    const next = row[i + 1];
+
+    if (character === '"' && next === '"') {
+      current += '"';
+      i++;
+    } else if (character === '"') {
+      inQuotes = !inQuotes;
+    } else if (character === "," && !inQuotes) {
+      output.push(current);
+      current = "";
+    } else {
+      current += character;
+    }
+  }
+
+  output.push(current);
+  return output;
+}
+
+function updateUi() {
+  document.querySelectorAll(".spot").forEach(spot => {
+    const booked = Boolean(getBooking(spot.dataset.placeId));
+
+    spot.classList.toggle("opptatt", booked);
+    spot.classList.toggle("ledig", !booked);
+  });
+
+  renderBookingList();
+
+  if (state.selected) {
+    renderPlaceCard(state.selected);
+  }
+}
+
+function renderBookingList() {
+  bookingList.innerHTML = "";
+
+  if (!state.bookings.length) {
+    bookingList.innerHTML = "<li>Ingen bookinger enda.</li>";
+    return;
+  }
+
+  state.bookings
+    .sort((a, b) =>
+      String(a.placeId).localeCompare(String(b.placeId), "no", { numeric: true })
+    )
+    .forEach(booking => {
+      const item = document.createElement("li");
+
+      item.innerHTML = `
+        <strong>Plass ${escapeHtml(booking.placeId)}</strong><br>
+        ${escapeHtml(booking.name)}
+      `;
+
+      bookingList.appendChild(item);
+    });
+}
+
+function selectPlace(id) {
+  state.selected = id;
+  renderPlaceCard(id);
+}
+
+function renderPlaceCard(id) {
+  const place = PLACES.find(item => String(item.id) === String(id));
+  const type = PLACE_TYPES[place.type];
+  const booking = getBooking(id);
+
+  if (!APP_CONFIG.bookingEnabled) {
+    placeCard.innerHTML = `
+      <h2>Plass ${place.id}</h2>
+      <span class="status closed">Booking stengt</span>
+      <p>${APP_CONFIG.bookingClosedText}</p>
+    `;
+
+    return;
+  }
+
+  if (booking) {
+    placeCard.innerHTML = `
+      <h2>Plass ${place.id}</h2>
+      <span class="status opptatt">Opptatt</span>
+      <p><strong>Type:</strong> ${type.label}</p>
+      <p><strong>Booket av:</strong><br>${escapeHtml(booking.name)}</p>
+    `;
+  } else {
+    placeCard.innerHTML = `
+      <h2>Plass ${place.id}</h2>
+      <span class="status ledig">Ledig</span>
+      <p><strong>Type:</strong> ${type.label}</p>
+      <button class="primary" id="bookBtn">Book denne plassen</button>
+    `;
+
+    document.getElementById("bookBtn").onclick = () => openDialog(place);
+  }
+}
+
+function openDialog(place) {
+  document.getElementById("dialogTitle").textContent = "Book plass " + place.id;
+  document.getElementById("placeId").value = place.id;
+  document.getElementById("name").value = "";
+  formMessage.textContent = "";
+
+  dialog.showModal();
+}
+
+async function submitBooking(event) {
+  event.preventDefault();
+
+  if (!APP_CONFIG.appsScriptUrl || APP_CONFIG.appsScriptUrl.includes("DIN_")) {
+    formMessage.textContent = "Legg inn Apps Script URL i config.js før ekte booking.";
+    return;
+  }
+
+  const formData = new FormData();
+
+  formData.append("placeId", document.getElementById("placeId").value);
+  formData.append("name", document.getElementById("name").value.trim());
+
+  formMessage.textContent = "Sender...";
+
+  try {
+    const response = await fetch(APP_CONFIG.appsScriptUrl, {
+      method: "POST",
+      body: formData
+    });
+
+    const result = await response.json();
+
+    if (!result.ok) {
+      formMessage.textContent = result.message || "Plassen er opptatt";
+      await loadBookings();
+      return;
+    }
+
+    dialog.close();
+    showToast("Booking registrert");
+    await loadBookings();
+  } catch (error) {
+    formMessage.textContent = "Kunne ikke sende booking";
+  }
+}
+
+function getBooking(id) {
+  return state.bookings.find(booking => String(booking.placeId) === String(id));
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.remove("hidden");
+
+  setTimeout(() => {
+    toast.classList.add("hidden");
+  }, 3000);
+}

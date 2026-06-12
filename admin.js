@@ -1,38 +1,8 @@
-const loginScreen = document.getElementById("loginScreen");
-const adminApp = document.getElementById("adminApp");
-
 let editablePlaces = JSON.parse(JSON.stringify(PLACES));
 let settings = JSON.parse(JSON.stringify(APP_CONFIG));
 let selectedId = null;
 
-function showAdmin() {
-  loginScreen.classList.add("hidden");
-  adminApp.classList.remove("hidden");
-
-  if (!window.adminStarted) {
-    window.adminStarted = true;
-    setupAdmin();
-  }
-}
-
-document.getElementById("loginForm").addEventListener("submit", function (e) {
-  e.preventDefault();
-
-  const username = document.getElementById("username").value.trim();
-  const password = document.getElementById("password").value.trim();
-
-  if (username === "admin" && password === "Hyttevold2026") {
-    sessionStorage.setItem("hyttevoldAdmin", "1");
-    showAdmin();
-  } else {
-    document.getElementById("loginMessage").textContent =
-      "Feil brukernavn eller passord.";
-  }
-});
-
-if (sessionStorage.getItem("hyttevoldAdmin") === "1") {
-  showAdmin();
-}
+setupAdmin();
 
 function setupAdmin() {
   document.getElementById("bookingEnabled").checked = !!settings.bookingEnabled;
@@ -56,58 +26,59 @@ function setupAdmin() {
 
 function renderAdmin() {
   const layer = document.getElementById("adminLayer");
+
   layer.innerHTML = "";
 
   editablePlaces.forEach(place => {
     const type = PLACE_TYPES[place.type];
-    const el = document.createElement("div");
+    const element = document.createElement("div");
 
-    el.className = "admin-spot" + (place.id === selectedId ? " selected" : "");
-    el.style.setProperty("--x", place.x + "%");
-    el.style.setProperty("--y", place.y + "%");
-    el.dataset.id = place.id;
+    element.className = "admin-spot" + (place.id === selectedId ? " selected" : "");
+    element.style.setProperty("--x", place.x + "%");
+    element.style.setProperty("--y", place.y + "%");
+    element.dataset.id = place.id;
 
-    el.innerHTML = `
+    element.innerHTML = `
       <img src="${type.iconFile}" onerror="this.remove()">
       <span>${place.id}</span>
     `;
 
-    el.onpointerdown = startDrag;
+    element.onpointerdown = startDrag;
 
-    el.onclick = () => {
+    element.onclick = () => {
       selectedId = place.id;
       renderAdmin();
     };
 
-    layer.appendChild(el);
+    layer.appendChild(element);
   });
 
   updateSelectedInfo();
   updateOutput();
 }
 
-function startDrag(e) {
-  e.preventDefault();
+function startDrag(event) {
+  event.preventDefault();
 
-  selectedId = e.currentTarget.dataset.id;
+  selectedId = event.currentTarget.dataset.id;
 
   const map = document.getElementById("adminMap");
-  const target = e.currentTarget;
+  const target = event.currentTarget;
 
-  const move = ev => {
+  const move = moveEvent => {
     const rect = map.getBoundingClientRect();
     const place = editablePlaces.find(
-      p => String(p.id) === String(selectedId)
+      item => String(item.id) === String(selectedId)
     );
 
     place.x = Math.max(
       0,
-      Math.min(100, Math.round(((ev.clientX - rect.left) / rect.width) * 1000) / 10)
+      Math.min(100, Math.round(((moveEvent.clientX - rect.left) / rect.width) * 1000) / 10)
     );
 
     place.y = Math.max(
       0,
-      Math.min(100, Math.round(((ev.clientY - rect.top) / rect.height) * 1000) / 10)
+      Math.min(100, Math.round(((moveEvent.clientY - rect.top) / rect.height) * 1000) / 10)
     );
 
     target.style.setProperty("--x", place.x + "%");
@@ -127,8 +98,8 @@ function startDrag(e) {
   addEventListener("pointerup", up);
 }
 
-function addPlace(e) {
-  e.preventDefault();
+function addPlace(event) {
+  event.preventDefault();
 
   const id = document.getElementById("newId").value.trim();
   const type = document.getElementById("newType").value;
@@ -146,12 +117,14 @@ function addPlace(e) {
   });
 
   selectedId = id;
-  e.target.reset();
+  event.target.reset();
   renderAdmin();
 }
 
 function deleteSelected() {
-  if (!selectedId) return;
+  if (!selectedId) {
+    return;
+  }
 
   if (confirm("Slette plass " + selectedId + "?")) {
     editablePlaces = editablePlaces.filter(
@@ -166,7 +139,7 @@ function deleteSelected() {
 function updateSelectedInfo() {
   const box = document.getElementById("selectedInfo");
   const place = editablePlaces.find(
-    p => String(p.id) === String(selectedId)
+    item => String(item.id) === String(selectedId)
   );
 
   if (!place) {

@@ -1,9 +1,36 @@
-# Hyttevold Booking v3
+# Hyttevold Booking v4
 
-- Ingen datovalg
-- Booking krever kun navn
-- Admin-login: admin / Hyttevold2026
-- Egne ikoner: icons/bobil.svg, icons/campingvogn.svg, icons/telt.svg, icons/bat.svg
-- Google Sheet: Timestamp | Plass | Navn
+Denne versjonen har fjernet passordbeskyttelsen på admin-siden.
 
-Merk: Admin-passord i GitHub Pages er enkel klientbeskyttelse, ikke ekte serversikkerhet.
+## Filer
+
+Last opp alle filene til GitHub-repoet ditt.
+
+## Admin
+
+Åpne:
+
+admin.html
+
+Admin-siden åpnes direkte uten login.
+
+## Ikoner
+
+Legg egne SVG-filer i `icons/`:
+
+- bobil.svg
+- campingvogn.svg
+- telt.svg
+- bat.svg
+
+## Google Sheet
+
+Arket skal ha fanen `Bookings` og kolonnene:
+
+Timestamp | Plass | Navn
+
+## Apps Script
+
+Bruk `appscript.gs`.
+
+Den hindrer dobbeltbooking med `LockService`.
