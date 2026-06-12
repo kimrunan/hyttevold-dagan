@@ -1,8 +1,8 @@
 const loginScreen = document.getElementById("loginScreen");
 const adminApp = document.getElementById("adminApp");
 
-let editablePlaces = JSON.parse(JSON.stringify(PLACES));
 let settings = JSON.parse(JSON.stringify(APP_CONFIG));
+let editablePlaces = JSON.parse(JSON.stringify(PLACES));
 let selectedId = null;
 
 if (sessionStorage.getItem("hyttevoldAdmin") === "1") {
