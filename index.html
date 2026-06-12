@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plassbooking</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div>
+      <p class="eyebrow">Nordøyane</p>
+      <h1>Plassbooking</h1>
+      <p class="subtitle">Velg ledig plass på kartet.</p>
+    </div>
+
+    <div class="header-actions">
+      <button id="refreshButton" class="ghost-button" type="button">Oppdater</button>
+      <a class="ghost-button" href="admin.html">Admin plassering</a>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="map-card">
+      <div class="legend">
+        <span><i class="dot available-dot"></i> Ledig</span>
+        <span><i class="dot booked-dot"></i> Opptatt</span>
+        <span>🚐 Bobil</span>
+        <span>🚛 Campingvogn</span>
+        <span>🏕️ Telt</span>
+        <span>⛵ Båt</span>
+      </div>
+
+      <div class="map-toolbar">
+        <label>
+          Fra
+          <input id="fromDate" type="date" />
+        </label>
+        <label>
+          Til
+          <input id="toDate" type="date" />
+        </label>
+        <button id="checkDatesButton" type="button">Sjekk dato</button>
+      </div>
+
+      <div id="map" class="map">
+        <img src="images/plasskart.png" alt="Plasskart" />
+        <div id="spotsLayer"></div>
+      </div>
+    </section>
+
+    <aside class="side-panel">
+      <section id="placeCard" class="place-card">
+        <p class="muted">Klikk på en plass i kartet.</p>
+      </section>
+
+      <section class="booked-card">
+        <div class="section-title">
+          <h2>Bookede plasser</h2>
+          <small id="lastUpdated">Ikke oppdatert</small>
+        </div>
+        <ul id="bookedList" class="booked-list"></ul>
+      </section>
+    </aside>
+  </main>
+
+  <dialog id="bookingDialog" class="dialog">
+    <form id="bookingForm" method="dialog">
+      <h2 id="dialogTitle">Book plass</h2>
+      <input type="hidden" id="bookingPlaceId" name="placeId" />
+
+      <label>
+        Navn
+        <input id="customerName" name="name" type="text" autocomplete="name" required />
+      </label>
+
+      <label>
+        Telefon / e-post
+        <input id="customerContact" name="contact" type="text" autocomplete="email" />
+      </label>
+
+      <label>
+        Fra
+        <input id="bookingFrom" name="from" type="date" required />
+      </label>
+
+      <label>
+        Til
+        <input id="bookingTo" name="to" type="date" required />
+      </label>
+
+      <p id="dialogMessage" class="form-message"></p>
+
+      <div class="dialog-actions">
+        <button type="button" class="ghost-button" id="cancelBooking">Avbryt</button>
+        <button type="submit" class="primary-button">Send booking</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="config.js"></script>
+  <script src="places.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

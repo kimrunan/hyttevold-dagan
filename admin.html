@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin plassering</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div>
+      <p class="eyebrow">Admin</p>
+      <h1>Rediger plasseringer</h1>
+      <p class="subtitle">Dra ikonene på kartet og kopier ny kode til places.js.</p>
+    </div>
+    <a class="ghost-button" href="index.html">Til booking</a>
+  </header>
+
+  <main class="admin-layout">
+    <section class="map-card">
+      <div id="adminMap" class="map">
+        <img src="images/plasskart.png" alt="Plasskart" />
+        <div id="adminLayer"></div>
+      </div>
+    </section>
+
+    <aside class="admin-panel">
+      <h2>Valgt plass</h2>
+      <div id="selectedInfo" class="muted">Dra eller klikk på en plass.</div>
+
+      <h2>Ny plass</h2>
+      <form id="addPlaceForm" class="admin-form">
+        <label>Plass-ID <input id="newId" type="text" placeholder="13 eller C1" required /></label>
+        <label>Type
+          <select id="newType">
+            <option value="bobil">🚐 Bobil</option>
+            <option value="campingvogn">🚛 Campingvogn</option>
+            <option value="telt">🏕️ Telt</option>
+            <option value="bat">⛵ Båt</option>
+          </select>
+        </label>
+        <button class="primary-button" type="submit">Legg til midt på kartet</button>
+      </form>
+
+      <h2>Kopier til places.js</h2>
+      <textarea id="output" readonly></textarea>
+      <button id="copyButton" class="primary-button" type="button">Kopier kode</button>
+    </aside>
+  </main>
+
+  <script src="places.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
