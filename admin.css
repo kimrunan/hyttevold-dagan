@@ -31,12 +31,18 @@
 
 #output {
   width: 100%;
-  min-height: 360px;
+  min-height: 180px;
   border: 1px solid #d8c4aa;
   border-radius: 14px;
   padding: 10px;
   font-family: Consolas, monospace;
   font-size: 12px;
+}
+
+.save-status {
+  margin: 0;
+  font-weight: 800;
+  color: #21160f;
 }
 
 .admin-spot {
@@ -68,6 +74,12 @@
   width: 23px;
   height: 23px;
   filter: brightness(0) invert(1);
+}
+
+.admin-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 @media (max-width: 900px) {

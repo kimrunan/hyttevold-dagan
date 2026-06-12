@@ -1,36 +1,47 @@
-# Hyttevold Booking v4
+# Hyttevold Booking v5
 
-Denne versjonen har fjernet passordbeskyttelsen på admin-siden.
+Denne versjonen lar admin lagre plasseringer direkte fra admin.html.
 
-## Filer
+## Viktig
 
-Last opp alle filene til GitHub-repoet ditt.
-
-## Admin
-
-Åpne:
-
-admin.html
-
-Admin-siden åpnes direkte uten login.
-
-## Ikoner
-
-Legg egne SVG-filer i `icons/`:
-
-- bobil.svg
-- campingvogn.svg
-- telt.svg
-- bat.svg
+GitHub Pages kan ikke skrive til filer direkte.
+Derfor lagres plasseringer og innstillinger i Google Sheets via Apps Script.
 
 ## Google Sheet
 
-Arket skal ha fanen `Bookings` og kolonnene:
+Lag et Google Sheet. Apps Script lager fanene automatisk hvis de mangler:
 
-Timestamp | Plass | Navn
+- Bookings
+- Places
+- Settings
 
 ## Apps Script
 
-Bruk `appscript.gs`.
+1. Åpne Google Apps Script.
+2. Lim inn innholdet fra `appscript.gs`.
+3. Sett `SHEET_ID`.
+4. Deploy som Web App:
+   - Execute as: Me
+   - Who has access: Anyone
+5. Kopier Web App URL.
+6. Lim den inn i `config.js` som `appsScriptUrl`.
 
-Den hindrer dobbeltbooking med `LockService`.
+## Første oppsett
+
+Når Apps Script er koblet til:
+
+1. Åpne admin.html
+2. Legg til / flytt plasser
+3. Trykk `Lagre endringer`
+4. Åpne index.html
+
+Da hentes plassene direkte fra Google Sheet.
+
+## Ikoner
+
+Legg egne ikoner her:
+
+- icons/bobil.svg
+- icons/campingvogn.svg
+- icons/telt.svg
+- icons/bat.svg

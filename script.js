@@ -13,19 +13,41 @@ const toast = document.getElementById("toast");
 
 init();
 
-function init() {
+async function init() {
+  await loadPublicConfig();
+
   document.getElementById("bookingStatusText").textContent =
     APP_CONFIG.bookingEnabled
       ? APP_CONFIG.bookingOpenText
       : APP_CONFIG.bookingClosedText;
 
   renderSpots();
-  loadBookings();
+  await loadBookings();
 
   setInterval(loadBookings, APP_CONFIG.refreshIntervalMs || 10000);
 
   document.getElementById("cancelButton").onclick = () => dialog.close();
   form.addEventListener("submit", submitBooking);
+}
+
+async function loadPublicConfig() {
+  if (!APP_CONFIG.appsScriptUrl || APP_CONFIG.appsScriptUrl.includes("DIN_")) {
+    return;
+  }
+
+  try {
+    const response = await fetch(APP_CONFIG.appsScriptUrl + "?action=config&cacheBust=" + Date.now());
+    const data = await response.json();
+
+    if (data.ok) {
+      PLACES = data.places || PLACES;
+      APP_CONFIG.bookingEnabled = data.settings.bookingEnabled;
+      APP_CONFIG.bookingOpenText = data.settings.bookingOpenText;
+      APP_CONFIG.bookingClosedText = data.settings.bookingClosedText;
+    }
+  } catch (error) {
+    console.warn("Kunne ikke hente config fra Apps Script", error);
+  }
 }
 
 function renderSpots() {
@@ -56,7 +78,7 @@ function renderSpots() {
 }
 
 async function loadBookings() {
-  if (!APP_CONFIG.bookingsCsvUrl || APP_CONFIG.bookingsCsvUrl.includes("DIN_")) {
+  if (!APP_CONFIG.appsScriptUrl || APP_CONFIG.appsScriptUrl.includes("DIN_")) {
     state.bookings = [
       { placeId: "2", name: "Ola Nordmann" },
       { placeId: "A1", name: "Kari Hansen" }
@@ -67,56 +89,16 @@ async function loadBookings() {
   }
 
   try {
-    const response = await fetch(APP_CONFIG.bookingsCsvUrl + "&cacheBust=" + Date.now());
-    state.bookings = parseCsv(await response.text());
-    updateUi();
+    const response = await fetch(APP_CONFIG.appsScriptUrl + "?action=bookings&cacheBust=" + Date.now());
+    const data = await response.json();
+
+    if (data.ok) {
+      state.bookings = data.bookings || [];
+      updateUi();
+    }
   } catch (error) {
     showToast("Kunne ikke hente bookingdata");
   }
-}
-
-function parseCsv(csv) {
-  const rows = csv.trim().split(/\r?\n/).slice(1);
-
-  return rows
-    .map(row => {
-      const columns = splitCsv(row).map(value =>
-        value.replace(/^"|"$/g, "").trim()
-      );
-
-      return {
-        timestamp: columns[0] || "",
-        placeId: columns[1] || "",
-        name: columns[2] || ""
-      };
-    })
-    .filter(booking => booking.placeId && booking.name);
-}
-
-function splitCsv(row) {
-  const output = [];
-  let current = "";
-  let inQuotes = false;
-
-  for (let i = 0; i < row.length; i++) {
-    const character = row[i];
-    const next = row[i + 1];
-
-    if (character === '"' && next === '"') {
-      current += '"';
-      i++;
-    } else if (character === '"') {
-      inQuotes = !inQuotes;
-    } else if (character === "," && !inQuotes) {
-      output.push(current);
-      current = "";
-    } else {
-      current += character;
-    }
-  }
-
-  output.push(current);
-  return output;
 }
 
 function updateUi() {
@@ -216,6 +198,7 @@ async function submitBooking(event) {
 
   const formData = new FormData();
 
+  formData.append("action", "book");
   formData.append("placeId", document.getElementById("placeId").value);
   formData.append("name", document.getElementById("name").value.trim());
 

@@ -2,9 +2,14 @@ let editablePlaces = JSON.parse(JSON.stringify(PLACES));
 let settings = JSON.parse(JSON.stringify(APP_CONFIG));
 let selectedId = null;
 
+const saveStatus = document.getElementById("saveStatus");
+const toast = document.getElementById("toast");
+
 setupAdmin();
 
-function setupAdmin() {
+async function setupAdmin() {
+  await loadAdminConfig();
+
   document.getElementById("bookingEnabled").checked = !!settings.bookingEnabled;
   document.getElementById("openText").value = settings.bookingOpenText;
   document.getElementById("closedText").value = settings.bookingClosedText;
@@ -15,13 +20,36 @@ function setupAdmin() {
 
   document.getElementById("addPlaceForm").addEventListener("submit", addPlace);
   document.getElementById("deletePlace").onclick = deleteSelected;
-
-  document.getElementById("copyButton").onclick = async () => {
-    await navigator.clipboard.writeText(document.getElementById("output").value);
-    alert("Kopiert");
+  document.getElementById("saveButton").onclick = saveChanges;
+  document.getElementById("reloadButton").onclick = async () => {
+    await loadAdminConfig();
+    renderAdmin();
+    showToast("Hentet siste lagrede versjon");
   };
 
   renderAdmin();
+}
+
+async function loadAdminConfig() {
+  if (!APP_CONFIG.appsScriptUrl || APP_CONFIG.appsScriptUrl.includes("DIN_")) {
+    saveStatus.textContent = "Apps Script URL mangler i config.js. Endringer kan ikke lagres direkte enda.";
+    return;
+  }
+
+  try {
+    const response = await fetch(APP_CONFIG.appsScriptUrl + "?action=config&cacheBust=" + Date.now());
+    const data = await response.json();
+
+    if (data.ok) {
+      editablePlaces = data.places || editablePlaces;
+      settings.bookingEnabled = data.settings.bookingEnabled;
+      settings.bookingOpenText = data.settings.bookingOpenText;
+      settings.bookingClosedText = data.settings.bookingClosedText;
+      saveStatus.textContent = "Klar til lagring.";
+    }
+  } catch (error) {
+    saveStatus.textContent = "Kunne ikke hente lagret konfigurasjon.";
+  }
 }
 
 function renderAdmin() {
@@ -155,6 +183,44 @@ function updateSelectedInfo() {
   `;
 }
 
+async function saveChanges() {
+  if (!APP_CONFIG.appsScriptUrl || APP_CONFIG.appsScriptUrl.includes("DIN_")) {
+    saveStatus.textContent = "Legg inn Apps Script URL i config.js først.";
+    return;
+  }
+
+  updateOutput();
+  saveStatus.textContent = "Lagrer...";
+
+  const formData = new FormData();
+  formData.append("action", "saveConfig");
+  formData.append("places", JSON.stringify(editablePlaces));
+  formData.append("settings", JSON.stringify({
+    bookingEnabled: settings.bookingEnabled,
+    bookingOpenText: settings.bookingOpenText,
+    bookingClosedText: settings.bookingClosedText
+  }));
+
+  try {
+    const response = await fetch(APP_CONFIG.appsScriptUrl, {
+      method: "POST",
+      body: formData
+    });
+
+    const result = await response.json();
+
+    if (!result.ok) {
+      saveStatus.textContent = result.message || "Kunne ikke lagre.";
+      return;
+    }
+
+    saveStatus.textContent = "Lagret " + new Date().toLocaleTimeString("no-NO");
+    showToast("Endringer lagret");
+  } catch (error) {
+    saveStatus.textContent = "Kunne ikke lagre endringer.";
+  }
+}
+
 function updateOutput() {
   settings.bookingEnabled =
     document.getElementById("bookingEnabled")?.checked ?? settings.bookingEnabled;
@@ -165,16 +231,20 @@ function updateOutput() {
   settings.bookingClosedText =
     document.getElementById("closedText")?.value ?? settings.bookingClosedText;
 
-  const config =
-    `const APP_CONFIG = ${JSON.stringify(settings, null, 2)
-      .replace(/"([a-zA-Z0-9_]+)":/g, "$1:")};`;
-
   const places =
     `const PLACE_TYPES = ${JSON.stringify(PLACE_TYPES, null, 2)
       .replace(/"([a-zA-Z0-9_]+)":/g, "$1:")};\n\n` +
-    `const PLACES = ${JSON.stringify(editablePlaces, null, 2)
+    `let PLACES = ${JSON.stringify(editablePlaces, null, 2)
       .replace(/"([a-zA-Z0-9_]+)":/g, "$1:")};`;
 
-  document.getElementById("output").value =
-    `// ----- config.js -----\n${config}\n\n// ----- places.js -----\n${places}`;
+  document.getElementById("output").value = places;
+}
+
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.remove("hidden");
+
+  setTimeout(() => {
+    toast.classList.add("hidden");
+  }, 3000);
 }

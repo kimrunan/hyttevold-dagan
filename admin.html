@@ -78,20 +78,35 @@
         Slett valgt plass
       </button>
 
-      <h2>Kopier oppdatert kode</h2>
+      <h2>Lagre endringer</h2>
 
       <p>
-        Kopier dette inn i <strong>places.js</strong> og
-        <strong>config.js</strong>.
+        Endringer lagres direkte til Google Sheet via Apps Script.
+      </p>
+
+      <div class="admin-actions">
+        <button id="saveButton" class="primary" type="button">
+          Lagre endringer
+        </button>
+
+        <button id="reloadButton" class="secondary" type="button">
+          Hent siste
+        </button>
+      </div>
+
+      <p id="saveStatus" class="save-status"></p>
+
+      <h2>Backup-kode</h2>
+
+      <p>
+        Denne er kun backup hvis du vil lime inn manuelt.
       </p>
 
       <textarea id="output" readonly></textarea>
-
-      <button id="copyButton" class="primary" type="button">
-        Kopier kode
-      </button>
     </aside>
   </main>
+
+  <div id="toast" class="toast hidden"></div>
 
   <script src="config.js"></script>
   <script src="places.js"></script>
