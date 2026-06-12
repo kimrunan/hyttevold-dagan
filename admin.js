@@ -1,1 +1,208 @@
-const loginScreen=document.getElementById("loginScreen"),adminApp=document.getElementById("adminApp");if(sessionStorage.getItem("hyttevoldAdmin")==="1")showAdmin();document.getElementById("loginForm").addEventListener("submit",e=>{e.preventDefault();const u=document.getElementById("username").value.trim(),p=document.getElementById("password").value;if(u===APP_CONFIG.adminUser&&p===APP_CONFIG.adminPassword){sessionStorage.setItem("hyttevoldAdmin","1");showAdmin()}else document.getElementById("loginMessage").textContent="Feil brukernavn eller passord."});document.getElementById("logoutButton").onclick=()=>{sessionStorage.removeItem("hyttevoldAdmin");location.reload()};let editablePlaces=JSON.parse(JSON.stringify(PLACES)),settings=JSON.parse(JSON.stringify(APP_CONFIG)),selectedId=null;function showAdmin(){loginScreen.classList.add("hidden");adminApp.classList.remove("hidden");setupAdmin()}function setupAdmin(){document.getElementById("bookingEnabled").checked=!!settings.bookingEnabled;document.getElementById("openText").value=settings.bookingOpenText;document.getElementById("closedText").value=settings.bookingClosedText;["bookingEnabled","openText","closedText"].forEach(id=>document.getElementById(id).addEventListener("input",updateOutput));document.getElementById("addPlaceForm").addEventListener("submit",addPlace);document.getElementById("deletePlace").onclick=deleteSelected;document.getElementById("copyButton").onclick=async()=>{await navigator.clipboard.writeText(document.getElementById("output").value);alert("Kopiert")};renderAdmin()}function renderAdmin(){const layer=document.getElementById("adminLayer");layer.innerHTML="";editablePlaces.forEach(p=>{const t=PLACE_TYPES[p.type],el=document.createElement("div");el.className="admin-spot"+(p.id===selectedId?" selected":"");el.style.setProperty("--x",p.x+"%");el.style.setProperty("--y",p.y+"%");el.dataset.id=p.id;el.innerHTML=`<img src="${t.iconFile}" onerror="this.remove()"><span>${p.id}</span>`;el.onpointerdown=startDrag;el.onclick=()=>{selectedId=p.id;renderAdmin()};layer.appendChild(el)});updateSelectedInfo();updateOutput()}function startDrag(e){e.preventDefault();selectedId=e.currentTarget.dataset.id;const map=document.getElementById("adminMap"),target=e.currentTarget;const move=ev=>{const r=map.getBoundingClientRect(),p=editablePlaces.find(x=>String(x.id)===String(selectedId));p.x=Math.max(0,Math.min(100,Math.round(((ev.clientX-r.left)/r.width)*1000)/10));p.y=Math.max(0,Math.min(100,Math.round(((ev.clientY-r.top)/r.height)*1000)/10));target.style.setProperty("--x",p.x+"%");target.style.setProperty("--y",p.y+"%");updateSelectedInfo();updateOutput()};const up=()=>{removeEventListener("pointermove",move);removeEventListener("pointerup",up);renderAdmin()};addEventListener("pointermove",move);addEventListener("pointerup",up)}function addPlace(e){e.preventDefault();const id=document.getElementById("newId").value.trim(),type=document.getElementById("newType").value;if(editablePlaces.some(p=>String(p.id)===id)){alert("ID finnes allerede");return}editablePlaces.push({id,type,x:50,y:50});selectedId=id;e.target.reset();renderAdmin()}function deleteSelected(){if(!selectedId)return;if(confirm("Slette plass "+selectedId+"?")){editablePlaces=editablePlaces.filter(p=>String(p.id)!==String(selectedId));selectedId=null;renderAdmin()}}function updateSelectedInfo(){const box=document.getElementById("selectedInfo"),p=editablePlaces.find(x=>String(x.id)===String(selectedId));if(!p){box.textContent="Ingen valgt.";return}box.innerHTML=`<strong>Plass ${p.id}</strong><br>Type: ${PLACE_TYPES[p.type].label}<br>x: ${p.x}<br>y: ${p.y}`}function updateOutput(){settings.bookingEnabled=document.getElementById("bookingEnabled")?.checked??settings.bookingEnabled;settings.bookingOpenText=document.getElementById("openText")?.value??settings.bookingOpenText;settings.bookingClosedText=document.getElementById("closedText")?.value??settings.bookingClosedText;const config=`const APP_CONFIG = ${JSON.stringify(settings,null,2).replace(/"([a-zA-Z0-9_]+)":/g,"$1:")};`;const places=`const PLACE_TYPES = ${JSON.stringify(PLACE_TYPES,null,2).replace(/"([a-zA-Z0-9_]+)":/g,"$1:")};\n\nconst PLACES = ${JSON.stringify(editablePlaces,null,2).replace(/"([a-zA-Z0-9_]+)":/g,"$1:")};`;document.getElementById("output").value=`// ----- config.js -----\n${config}\n\n// ----- places.js -----\n${places}`}
+const loginScreen = document.getElementById("loginScreen");
+const adminApp = document.getElementById("adminApp");
+
+let editablePlaces = JSON.parse(JSON.stringify(PLACES));
+let settings = JSON.parse(JSON.stringify(APP_CONFIG));
+let selectedId = null;
+
+if (sessionStorage.getItem("hyttevoldAdmin") === "1") {
+  showAdmin();
+}
+
+document.getElementById("loginForm").addEventListener("submit", e => {
+  e.preventDefault();
+
+  const u = document.getElementById("username").value.trim();
+  const p = document.getElementById("password").value.trim();
+
+  if (u === APP_CONFIG.adminUser && p === APP_CONFIG.adminPassword) {
+    sessionStorage.setItem("hyttevoldAdmin", "1");
+    showAdmin();
+  } else {
+    document.getElementById("loginMessage").textContent =
+      "Feil brukernavn eller passord.";
+  }
+});
+
+document.getElementById("logoutButton").onclick = () => {
+  sessionStorage.removeItem("hyttevoldAdmin");
+  location.reload();
+};
+
+function showAdmin() {
+  loginScreen.classList.add("hidden");
+  adminApp.classList.remove("hidden");
+  setupAdmin();
+}
+
+function setupAdmin() {
+  document.getElementById("bookingEnabled").checked = !!settings.bookingEnabled;
+  document.getElementById("openText").value = settings.bookingOpenText;
+  document.getElementById("closedText").value = settings.bookingClosedText;
+
+  ["bookingEnabled", "openText", "closedText"].forEach(id => {
+    document.getElementById(id).addEventListener("input", updateOutput);
+  });
+
+  document.getElementById("addPlaceForm").addEventListener("submit", addPlace);
+  document.getElementById("deletePlace").onclick = deleteSelected;
+
+  document.getElementById("copyButton").onclick = async () => {
+    await navigator.clipboard.writeText(document.getElementById("output").value);
+    alert("Kopiert");
+  };
+
+  renderAdmin();
+}
+
+function renderAdmin() {
+  const layer = document.getElementById("adminLayer");
+  layer.innerHTML = "";
+
+  editablePlaces.forEach(place => {
+    const type = PLACE_TYPES[place.type];
+    const el = document.createElement("div");
+
+    el.className = "admin-spot" + (place.id === selectedId ? " selected" : "");
+    el.style.setProperty("--x", place.x + "%");
+    el.style.setProperty("--y", place.y + "%");
+    el.dataset.id = place.id;
+
+    el.innerHTML = `
+      <img src="${type.iconFile}" onerror="this.remove()">
+      <span>${place.id}</span>
+    `;
+
+    el.onpointerdown = startDrag;
+
+    el.onclick = () => {
+      selectedId = place.id;
+      renderAdmin();
+    };
+
+    layer.appendChild(el);
+  });
+
+  updateSelectedInfo();
+  updateOutput();
+}
+
+function startDrag(e) {
+  e.preventDefault();
+
+  selectedId = e.currentTarget.dataset.id;
+
+  const map = document.getElementById("adminMap");
+  const target = e.currentTarget;
+
+  const move = ev => {
+    const rect = map.getBoundingClientRect();
+    const place = editablePlaces.find(
+      p => String(p.id) === String(selectedId)
+    );
+
+    place.x = Math.max(
+      0,
+      Math.min(100, Math.round(((ev.clientX - rect.left) / rect.width) * 1000) / 10)
+    );
+
+    place.y = Math.max(
+      0,
+      Math.min(100, Math.round(((ev.clientY - rect.top) / rect.height) * 1000) / 10)
+    );
+
+    target.style.setProperty("--x", place.x + "%");
+    target.style.setProperty("--y", place.y + "%");
+
+    updateSelectedInfo();
+    updateOutput();
+  };
+
+  const up = () => {
+    removeEventListener("pointermove", move);
+    removeEventListener("pointerup", up);
+    renderAdmin();
+  };
+
+  addEventListener("pointermove", move);
+  addEventListener("pointerup", up);
+}
+
+function addPlace(e) {
+  e.preventDefault();
+
+  const id = document.getElementById("newId").value.trim();
+  const type = document.getElementById("newType").value;
+
+  if (editablePlaces.some(place => String(place.id) === id)) {
+    alert("ID finnes allerede");
+    return;
+  }
+
+  editablePlaces.push({
+    id: id,
+    type: type,
+    x: 50,
+    y: 50
+  });
+
+  selectedId = id;
+  e.target.reset();
+  renderAdmin();
+}
+
+function deleteSelected() {
+  if (!selectedId) return;
+
+  if (confirm("Slette plass " + selectedId + "?")) {
+    editablePlaces = editablePlaces.filter(
+      place => String(place.id) !== String(selectedId)
+    );
+
+    selectedId = null;
+    renderAdmin();
+  }
+}
+
+function updateSelectedInfo() {
+  const box = document.getElementById("selectedInfo");
+  const place = editablePlaces.find(
+    p => String(p.id) === String(selectedId)
+  );
+
+  if (!place) {
+    box.textContent = "Ingen valgt.";
+    return;
+  }
+
+  box.innerHTML = `
+    <strong>Plass ${place.id}</strong><br>
+    Type: ${PLACE_TYPES[place.type].label}<br>
+    x: ${place.x}<br>
+    y: ${place.y}
+  `;
+}
+
+function updateOutput() {
+  settings.bookingEnabled =
+    document.getElementById("bookingEnabled")?.checked ?? settings.bookingEnabled;
+
+  settings.bookingOpenText =
+    document.getElementById("openText")?.value ?? settings.bookingOpenText;
+
+  settings.bookingClosedText =
+    document.getElementById("closedText")?.value ?? settings.bookingClosedText;
+
+  const config =
+    `const APP_CONFIG = ${JSON.stringify(settings, null, 2)
+      .replace(/"([a-zA-Z0-9_]+)":/g, "$1:")};`;
+
+  const places =
+    `const PLACE_TYPES = ${JSON.stringify(PLACE_TYPES, null, 2)
+      .replace(/"([a-zA-Z0-9_]+)":/g, "$1:")};\n\n` +
+    `const PLACES = ${JSON.stringify(editablePlaces, null, 2)
+      .replace(/"([a-zA-Z0-9_]+)":/g, "$1:")};`;
+
+  document.getElementById("output").value =
+    `// ----- config.js -----\n${config}\n\n// ----- places.js -----\n${places}`;
+}
