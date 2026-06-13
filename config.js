@@ -1,6 +1,6 @@
 const APP_CONFIG = {
   // Lim inn Web App URL fra Google Apps Script her.
-  appsScriptUrl: "https://script.google.com/macros/s/AKfycbzlsArraMIZEb7vZcE8my5qiP2ViPG_paz4A6xVidtBoFv5GFONvwu4Um2mXQoaHfwfSA/exec",
+  appsScriptUrl: "https://script.google.com/macros/s/AKfycbxdgMBRRYwJxx3zbdiOxEwo4pWj78A9xnYGGTWkwNBkPPGXdgqc-RAINf08zj8EADT5/exec",
 
   // Brukes bare som fallback hvis Apps Script ikke er satt opp.
   refreshIntervalMs: 10000,
