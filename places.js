@@ -7,23 +7,18 @@ const PLACE_TYPES = {
 
 // Lokal fallback. Når Apps Script er koblet på, hentes plassene fra Google Sheet.
 let PLACES = [
-  { id: "1", type: "bobil", x: 59, y: 35 },
-  { id: "2", type: "bobil", x: 64, y: 39 },
-  { id: "3", type: "bobil", x: 69, y: 44 },
-  { id: "4", type: "bobil", x: 74, y: 49 },
-
-  { id: "5", type: "campingvogn", x: 56, y: 49 },
-  { id: "6", type: "campingvogn", x: 62, y: 54 },
-  { id: "7", type: "campingvogn", x: 68, y: 59 },
-  { id: "8", type: "campingvogn", x: 74, y: 64 },
-
-  { id: "9", type: "telt", x: 49, y: 63 },
-  { id: "10", type: "telt", x: 55, y: 68 },
-  { id: "11", type: "telt", x: 61, y: 73 },
-  { id: "12", type: "telt", x: 67, y: 78 },
-
-  { id: "A1", type: "bat", x: 19, y: 69 },
-  { id: "A2", type: "bat", x: 23, y: 72 },
-  { id: "A3", type: "bat", x: 27, y: 75 },
-  { id: "A4", type: "bat", x: 31, y: 78 }
+  { id: "1",  type: "campingvogn", x: 41.5, y: 75.1 },
+  { id: "2",  type: "campingvogn", x: 50.3, y: 65.1 },
+  { id: "3",  type: "campingvogn", x: 57.9, y: 51.6 },
+  { id: "4",  type: "bobil",       x: 60.4, y: 67.7 },
+  { id: "5",  type: "bobil",       x: 75.1, y: 61.3 },
+  { id: "6",  type: "bobil",       x: 71.8, y: 46.0 },
+  { id: "7",  type: "bobil",       x: 66.3, y: 38.8 },
+  { id: "8",  type: "bobil",       x: 42.4, y: 61.7 },
+  { id: "9",  type: "telt",        x: 45.8, y: 35.3 },
+  { id: "10", type: "telt",        x: 39.0, y: 31.9 },
+  { id: "11", type: "campingvogn", x: 17.8, y: 24.8 },
+  { id: "12", type: "campingvogn", x: 20.7, y: 17.1 },
+  { id: "13", type: "bat",         x: 27.5, y: 75.3 },
+  { id: "14", type: "bat",         x: 29.1, y: 62.0 }
 ];
