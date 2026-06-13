@@ -339,7 +339,9 @@ select {
     gap: 2px;
     box-shadow: 0 4px 10px #0005;
   }
-
+  .topbar {
+    align-items: center;
+  }
   .spot-icon {
     width: 15px;
     height: 15px;
