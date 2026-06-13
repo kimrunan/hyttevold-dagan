@@ -313,19 +313,54 @@ select {
   }
 }
 
-@media (max-width: 560px) {
-  .topbar {
-    flex-direction: column;
-  }
+/* Midtstill topp/logo */
+.topbar {
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
 
+.topbar .logo {
+  margin: 0 auto;
+}
+
+.topbar .admin-link {
+  margin-left: 0;
+}
+
+/* Bedre mobilvisning av plassene */
+@media (max-width: 560px) {
   .spot {
-    min-width: 48px;
-    height: 34px;
-    font-size: 0.85rem;
+    min-width: 34px;
+    height: 28px;
+    padding: 0 6px;
+    font-size: 0.75rem;
+    border-width: 2px;
+    gap: 2px;
+    box-shadow: 0 4px 10px #0005;
   }
 
   .spot-icon {
-    width: 19px;
-    height: 19px;
+    width: 15px;
+    height: 15px;
+  }
+
+  .fallback-icon {
+    font-size: 12px;
+  }
+
+  .legend {
+    justify-content: center;
+  }
+
+  .map-card,
+  .card {
+    border-radius: 20px;
+    padding: 16px;
+  }
+
+  .layout {
+    padding: 18px 12px;
+    gap: 18px;
   }
 }
